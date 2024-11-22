@@ -8,7 +8,9 @@ public enum ImoocMallExceptionEnum {
     NEED_USER_PASSWORD(10002, "密码不能为空"),
     PASSWORD_TOO_SHORT(10003, "密码长度不能小于8位"),
     NAME_EXISTED(10004, "不允许重名，注册失败"),
-    INSERT_FAILED(10005, "插入失败，请重试");
+    INSERT_FAILED(10005, "插入失败，请重试"),
+
+    SYSTEM_ERROR(20000, "系统异常");
     Integer code;
     String msg;
 
