@@ -116,9 +116,17 @@
   </update>
   <select id="selectByName" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
-        <include refid="Base_Column_List"/>
-        from imooc_mall_user
-    where username = #{username,jdbcType=VARCHAR}
+    <include refid="Base_Column_List"/>
+    from imooc_mall_user
+    where username = #{userName,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectLogin" parameterType="map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from imooc_mall_user
+    where username = #{userName,jdbcType=VARCHAR}
+    and passowrd = #{password,jdbcType=VARCHAR}
   </select>
 
 </mapper>

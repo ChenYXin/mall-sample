@@ -15,12 +15,5 @@ public class MD5Utils {
         return Base64.encodeBase64String(md5.digest((strValue + Constant.SALT).getBytes()));
     }
 
-    public static void main(String[] args) {
-        try {
-            String md5 = getMD5Str("1234");
-            System.out.println(md5);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 }

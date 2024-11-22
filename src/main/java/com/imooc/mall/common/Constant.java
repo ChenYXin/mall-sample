@@ -6,4 +6,6 @@ package com.imooc.mall.common;
 public class Constant {
     //盐值
     public static final String SALT = "s0jx090a92IS]a.,qWc";
+
+    public static final String IMOOC_MALL_USER = "imooc_mall_user";
 }
