@@ -1,7 +1,7 @@
 package com.imooc.mall.model.pojo;
 
 import java.util.Date;
-
+//plain ordinary java object 普通 Java 对象
 public class Category {
     private Integer id;
 
