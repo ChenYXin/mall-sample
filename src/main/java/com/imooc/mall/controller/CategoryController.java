@@ -27,23 +27,16 @@ public class CategoryController {
     @ApiOperation("后台添加目录")
     @PostMapping("/admin/category/add")
     @ResponseBody
-    public ApiRestResponse addCategory(HttpSession session, @Valid @RequestBody AddCategoryReq addCategoryReq) {
-        if (addCategoryReq.getName() == null || addCategoryReq.getType() == null ||
-                addCategoryReq.getParentId() == null || addCategoryReq.getOrderNum() == null) {
-            return ApiRestResponse.error(ImoocMallExceptionEnum.NAME_NOT_NULL);
-        }
-        User currentUser = (User) session.getAttribute(Constant.IMOOC_MALL_USER);
-        if (currentUser == null) {
-            return ApiRestResponse.error(ImoocMallExceptionEnum.NEED_LOGIN);
-        }
-        boolean adminRole = userService.checkAdminRole(currentUser);
-        //校验是否是管理员
-        if (adminRole) {
-            //是管理员，执行新增操作
-            categoryService.add(addCategoryReq);
-            return ApiRestResponse.success();
-        } else {
-            return ApiRestResponse.error(ImoocMallExceptionEnum.NEED_ADMIN);
-        }
+    public ApiRestResponse addCategory( @Valid @RequestBody AddCategoryReq addCategoryReq) {
+        //是管理员，执行新增操作
+        categoryService.add(addCategoryReq);
+        return ApiRestResponse.success();
+    }
+
+    @ApiOperation("后台删除目录")
+    @PostMapping("/admin/category/delete")
+    @ResponseBody
+    public ApiRestResponse deleteCategory() {
+        return null;
     }
 }
