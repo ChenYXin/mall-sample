@@ -4,8 +4,10 @@ import com.github.pagehelper.PageInfo;
 import com.imooc.mall.common.ApiRestResponse;
 import com.imooc.mall.common.Constant;
 import com.imooc.mall.exception.ImoocMallExceptionEnum;
+import com.imooc.mall.model.pojo.Category;
 import com.imooc.mall.model.pojo.User;
 import com.imooc.mall.model.request.AddCategoryReq;
+import com.imooc.mall.model.vo.CategoryVO;
 import com.imooc.mall.service.CategoryService;
 import com.imooc.mall.service.UserService;
 import io.swagger.annotations.ApiOperation;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 public class CategoryController {
@@ -45,5 +48,13 @@ public class CategoryController {
     public ApiRestResponse listCategoryForAdmin(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
         PageInfo pageInfo = categoryService.listForAdmin(pageNum, pageSize);
         return ApiRestResponse.success(pageInfo);
+    }
+
+    @ApiOperation("前台目录列表")
+    @PostMapping("/category/list")
+    @ResponseBody
+    public ApiRestResponse listCategoryForCustomer() {
+        List<CategoryVO> list = categoryService.listCategoryForCustomer();
+        return ApiRestResponse.success(list);
     }
 }
