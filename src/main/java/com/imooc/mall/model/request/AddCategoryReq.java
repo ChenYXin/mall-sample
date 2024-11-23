@@ -11,7 +11,7 @@ public class AddCategoryReq {
     @NotNull
     @Max(3)
     private Integer type;
-    @NotNull
+    @NotNull(message = "parentId不能为null")
     private Integer parentId;
     @NotNull
     private Integer orderNum;
