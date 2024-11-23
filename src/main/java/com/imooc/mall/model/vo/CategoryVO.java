@@ -1,11 +1,12 @@
 package com.imooc.mall.model.vo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 //plain ordinary java object 普通 Java 对象
-public class CategoryVO {
+public class CategoryVO implements Serializable {
     private Integer id;
 
     private String name;
