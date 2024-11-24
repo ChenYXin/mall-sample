@@ -154,6 +154,5 @@
       <include refid="Base_Column_List"/>
       from imooc_mall_product
       where name=#{name,jdbcType=VARCHAR}
-      where
   </select>
 </mapper>

@@ -7,10 +7,7 @@ import com.imooc.mall.exception.ImoocMallExceptionEnum;
 import com.imooc.mall.model.request.AddProductReq;
 import com.imooc.mall.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +26,7 @@ public class ProductAdminController {
 
     @PostMapping("/admin/product/add")
     @ResponseBody
-    public ApiRestResponse addProduct(@Valid AddProductReq addProductReq) {
+    public ApiRestResponse addProduct(@Valid @RequestBody AddProductReq addProductReq) {
         productService.add(addProductReq);
         return ApiRestResponse.success();
     }

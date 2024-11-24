@@ -33,7 +33,7 @@ public class AdminFilter implements Filter {
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute(Constant.IMOOC_MALL_USER);
         if (currentUser == null) {
-            PrintWriter out=new HttpServletResponseWrapper((HttpServletResponse) servletResponse).getWriter();
+            PrintWriter out = new HttpServletResponseWrapper((HttpServletResponse) servletResponse).getWriter();
             out.write("{\n" +
                     "    \"status\": 10007,\n" +
                     "    \"msg\": \"NEED_LOGIN\",\n" +
@@ -44,11 +44,12 @@ public class AdminFilter implements Filter {
             return;
         }
         boolean adminRole = userService.checkAdminRole(currentUser);
+        System.out.println("--- 是否是管理员 : " + adminRole + " ---");
         //校验是否是管理员
         if (adminRole) {
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
-            PrintWriter out=new HttpServletResponseWrapper((HttpServletResponse) servletResponse).getWriter();
+            PrintWriter out = new HttpServletResponseWrapper((HttpServletResponse) servletResponse).getWriter();
             out.write("{\n" +
                     "    \"status\": 10009,\n" +
                     "    \"msg\": \"NEED_ADMIN\",\n" +
