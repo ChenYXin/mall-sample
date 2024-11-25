@@ -36,5 +36,12 @@ public class OrderController {
         return ApiRestResponse.success();
     }
 
+    @ApiOperation("生成支付二维码")
+    @GetMapping("/qrcode")
+    public ApiRestResponse qrcode(@RequestParam String orderNo) {
+        String pngAddress = orderService.qrcode(orderNo);
+        return ApiRestResponse.success(pngAddress);
+    }
+
 
 }
