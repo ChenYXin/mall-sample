@@ -105,4 +105,23 @@ public class CartServiceImpl implements CartService {
         }
         return this.list(userId);
     }
+
+    @Override
+    public List<CartVO> selectOrNot(Integer userId, Integer productId, Integer selected) {
+        Cart cart = cartMapper.selectByUserIdAndProductId(userId, productId);
+        if (cart == null) {
+            //这个商品之前不在购物车里，无法选择
+            throw new ImoocMallException(ImoocMallExceptionEnum.UPDATE_FAILED);
+        } else {
+            //这个商品已经在购物车里了，则可以选择
+            cartMapper.selectOrNot(userId, productId, selected);
+        }
+        return this.list(userId);
+    }
+
+    @Override
+    public List<CartVO> selectAllOrNot(Integer userId, Integer selected) {
+        cartMapper.selectOrNot(userId, null, selected);
+        return this.list(userId);
+    }
 }
