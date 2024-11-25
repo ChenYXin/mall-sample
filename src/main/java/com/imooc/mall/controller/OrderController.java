@@ -58,5 +58,11 @@ public class OrderController {
         return ApiRestResponse.success();
     }
 
+    @ApiOperation("普通用户完结订单")
+    @PostMapping("/finish")
+    public ApiRestResponse finish(@RequestParam String orderNo) {
+        orderService.finish(orderNo);
+        return ApiRestResponse.success();
+    }
 
 }
