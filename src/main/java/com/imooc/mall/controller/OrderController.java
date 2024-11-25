@@ -51,5 +51,12 @@ public class OrderController {
         return ApiRestResponse.success(pngAddress);
     }
 
+    @ApiOperation("支付接口")
+    @GetMapping("/pay")
+    public ApiRestResponse pay(@RequestParam String orderNo) {
+        orderService.pay(orderNo);
+        return ApiRestResponse.success();
+    }
+
 
 }

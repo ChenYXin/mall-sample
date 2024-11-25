@@ -17,4 +17,6 @@ public interface OrderService {
     PageInfo listForCustomer(Integer pageNum, Integer pageSize);
 
     PageInfo listForAdmin(Integer pageNum, Integer pageSize);
+
+    void pay(String orderNo);
 }

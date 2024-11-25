@@ -259,4 +259,20 @@ public class OrderServiceImpl implements OrderService {
         pageInfo.setList(orderVOList);
         return pageInfo;
     }
+
+    @Override
+    public void pay(String orderNo) {
+        Order order = orderMapper.selectByOrderNo(orderNo);
+        if (order == null) {
+            //查不到订单，报错
+            throw new ImoocMallException(ImoocMallExceptionEnum.NO_ORDER);
+        }
+        if (order.getOrderStatus().equals(Constant.OrderStatusEnum.NOT_PAID.getCode())) {
+            order.setOrderStatus(Constant.OrderStatusEnum.PAID.getCode());
+            order.setPayTime(new Date());
+            orderMapper.updateByPrimaryKey(order);
+        }else{
+            throw new ImoocMallException(ImoocMallExceptionEnum.WRONG_ORDER_STATUS);
+        }
+    }
 }
