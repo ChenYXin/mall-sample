@@ -23,22 +23,32 @@ public class CartServiceImpl implements CartService {
     CartMapper cartMapper;
 
     @Override
+    public List<CartVO> list(Integer userId) {
+        List<CartVO> cartVOS = cartMapper.selectList(userId);
+        for (int i = 0; i < cartVOS.size(); i++) {
+            CartVO cartVO = cartVOS.get(i);
+            cartVO.setTotalPrice(cartVO.getPrice() * cartVO.getQuantity());
+        }
+        return cartVOS;
+    }
+
+    @Override
     public List<CartVO> add(Integer userId, Integer productId, Integer count) {
         validProduct(productId, count);
 
         Cart cart = cartMapper.selectByUserIdAndProductId(userId, productId);
         if (cart == null) {
             //这个商品之前不在购物车里，需要新增一个记录
-            cart=new Cart();
+            cart = new Cart();
             cart.setProductId(productId);
             cart.setUserId(userId);
             cart.setQuantity(count);
             cart.setSelected(Constant.Cart.CHECKED);
             cartMapper.insertSelective(cart);
-        }else{
+        } else {
             //这个商品已经在购物车里了，则数量相加
-            count=cart.getQuantity()+count;
-            Cart cartnew=new Cart();
+            count = cart.getQuantity() + count;
+            Cart cartnew = new Cart();
             cartnew.setQuantity(count);
             cartnew.setId(cart.getId());
             cartnew.setProductId(cart.getProductId());
@@ -46,7 +56,7 @@ public class CartServiceImpl implements CartService {
             cartnew.setSelected(Constant.Cart.CHECKED);
             cartMapper.updateByPrimaryKeySelective(cartnew);
         }
-        return null;
+        return this.list(userId);
     }
 
     private void validProduct(Integer productId, Integer count) {
@@ -56,7 +66,7 @@ public class CartServiceImpl implements CartService {
             throw new ImoocMallException(ImoocMallExceptionEnum.NO_SALE);
         }
         //判断商品库存
-        if (count>product.getStock()){
+        if (count > product.getStock()) {
             throw new ImoocMallException(ImoocMallExceptionEnum.NO_ENOUGH);
         }
     }
