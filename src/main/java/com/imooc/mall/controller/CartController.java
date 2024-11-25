@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/cart")
-public class CarController {
+public class CartController {
     @Autowired
     CartService cartService;
 
