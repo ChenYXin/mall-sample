@@ -18,6 +18,9 @@ public class Constant {
 
     public static final String IMOOC_MALL_USER = "imooc_mall_user";
 
+    public static final String EMAIL_SUBJECT = "您的验证码";
+    public static final String EMAIL_FROM = "1224670105@qq.com";
+
     public static String FILE_UPLOAD_DIR;
 
     @Value("${file.upload.dir}")

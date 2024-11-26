@@ -1,10 +1,8 @@
 package com.imooc.mall.model.dao;
 
 import com.imooc.mall.model.pojo.User;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
+import io.lettuce.core.dynamic.annotation.Param;
 
-@Repository
 public interface UserMapper {
     int deleteByPrimaryKey(Integer id);
 
@@ -21,4 +19,6 @@ public interface UserMapper {
     User selectByName(String userName);
 
     User selectLogin(@Param("userName") String userName, @Param("password") String password);
+
+    User selectOneByEmailAddress(String emailAddress);
 }

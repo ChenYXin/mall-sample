@@ -2,10 +2,15 @@ package com.imooc.mall.controller;
 
 import com.imooc.mall.common.ApiRestResponse;
 import com.imooc.mall.common.Constant;
+import com.imooc.mall.config.ImoocMallWebMvcConfig;
 import com.imooc.mall.exception.ImoocMallException;
 import com.imooc.mall.exception.ImoocMallExceptionEnum;
 import com.imooc.mall.model.pojo.User;
+import com.imooc.mall.service.EmailService;
 import com.imooc.mall.service.UserService;
+import com.imooc.mall.util.EmailUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +25,8 @@ public class UserController {
 
     @Autowired
     UserService userService;
+    @Autowired
+    EmailService emailService;
 
     @GetMapping("/test")
     @ResponseBody
@@ -108,4 +115,19 @@ public class UserController {
         }
     }
 
+    @ApiOperation("发送邮件")
+    @PostMapping("/sendEmail")
+    public ApiRestResponse sendEmail(@RequestParam String emailAddress) {
+        //检查邮件地址是否有效，检查是否已注册
+        boolean validEmailAddress = EmailUtil.isValidEmailAddress(emailAddress);
+        if (!validEmailAddress) {
+            throw new ImoocMallException(ImoocMallExceptionEnum.WRONG_EMAIL);
+        }
+        boolean emailPass = userService.checkEmailRegister(emailAddress);
+        if (!emailPass) {
+            throw new ImoocMallException(ImoocMallExceptionEnum.EMAIL_ALREADY_BEEN_REGISTERED);
+        }
+        emailService.sendSimpleMessage(emailAddress,Constant.EMAIL_SUBJECT,"欢迎注册，您的验证码是");
+        return ApiRestResponse.success();
+    }
 }

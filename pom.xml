@@ -101,6 +101,12 @@
             <artifactId>aspectjweaver</artifactId>
             <version>1.9.6</version> <!-- 使用最适合你项目的版本 -->
         </dependency>
+        <!--发送邮箱-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+            <version>2.3.4.RELEASE</version>
+        </dependency>
     </dependencies>
 
     <build>
