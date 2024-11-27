@@ -10,11 +10,15 @@ import com.imooc.mall.model.request.AddProductReq;
 import com.imooc.mall.model.request.UpdateProductReq;
 import com.imooc.mall.service.ProductService;
 import io.swagger.annotations.ApiOperation;
+import net.coobird.thumbnailator.Thumbnailator;
+import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Positions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.File;
@@ -40,8 +44,8 @@ public class ProductAdminController {
     }
 
     @PostMapping("/admin/upload/file")
-    public ApiRestResponse upload(HttpServletRequest httpServletRequest, @RequestParam("file") MultipartFile file) {
-        String fileName = file.getOriginalFilename();
+    public ApiRestResponse upload(HttpServletRequest httpServletRequest, @RequestParam("file") MultipartFile multipartFile) {
+        String fileName = multipartFile.getOriginalFilename();
         String suffixName = fileName.substring(fileName.lastIndexOf("."));
         //生成文件名称UUID
         UUID uuid = UUID.randomUUID();
@@ -49,16 +53,8 @@ public class ProductAdminController {
         //创建文件
         File fileDirectory = new File(Constant.FILE_UPLOAD_DIR);
         File destFile = new File(Constant.FILE_UPLOAD_DIR + newFileName);
-        if (!fileDirectory.exists()) {
-            if (!fileDirectory.mkdirs()) {
-                throw new ImoocMallException(ImoocMallExceptionEnum.MKDIR_FAILED);
-            }
-        }
-        try {
-            file.transferTo(destFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        createFile(multipartFile, fileDirectory, destFile);
         try {
             return ApiRestResponse.success(
                     getHost(new URI(httpServletRequest.getRequestURL() + ""))
@@ -119,6 +115,36 @@ public class ProductAdminController {
         //创建文件
         File fileDirectory = new File(Constant.FILE_UPLOAD_DIR);
         File destFile = new File(Constant.FILE_UPLOAD_DIR + newFileName);
+        createFile(multipartFile, fileDirectory, destFile);
+        productService.addProductByExcel(destFile);
+        return ApiRestResponse.success();
+    }
+
+    @PostMapping("/admin/upload/image")
+    public ApiRestResponse uploadImage(HttpServletRequest httpServletRequest,
+                                       @RequestParam("file") MultipartFile multipartFile) throws IOException {
+        String filename = multipartFile.getOriginalFilename();
+        String suffixName = filename.substring(filename.lastIndexOf("."));
+        //生成UUID
+        UUID uuid = UUID.randomUUID();
+        String newFileName = uuid.toString() + suffixName;
+        //创建文件
+        File fileDirectory = new File(Constant.FILE_UPLOAD_DIR);
+        File destFile = new File(Constant.FILE_UPLOAD_DIR + newFileName);
+        createFile(multipartFile, fileDirectory, destFile);
+        Thumbnails.of(destFile).size(Constant.IMAGE_SIZE, Constant.IMAGE_SIZE)
+                .watermark(Positions.BOTTOM_RIGHT, ImageIO.read(new File(Constant.FILE_UPLOAD_DIR + Constant.WATER_MARK_PNG)), Constant.IMAGE_OPACITY)
+                .toFile(new File(Constant.FILE_UPLOAD_DIR + newFileName));
+        try {
+            return ApiRestResponse.success(
+                    getHost(new URI(httpServletRequest.getRequestURL() + ""))
+                            + "/images/" + newFileName);
+        } catch (URISyntaxException e) {
+            return ApiRestResponse.error(ImoocMallExceptionEnum.UPLOAD_FAILED);
+        }
+    }
+
+    private static void createFile(MultipartFile multipartFile, File fileDirectory, File destFile) {
         if (!fileDirectory.exists()) {
             if (!fileDirectory.mkdirs()) {
                 throw new ImoocMallException(ImoocMallExceptionEnum.MKDIR_FAILED);
@@ -129,7 +155,5 @@ public class ProductAdminController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        productService.addProductByExcel(destFile);
-        return ApiRestResponse.success();
     }
 }

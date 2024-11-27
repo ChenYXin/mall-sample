@@ -21,6 +21,10 @@ public class Constant {
     public static final String EMAIL_SUBJECT = "您的验证码";
     public static final String EMAIL_FROM = "1224670105@qq.com";
 
+    public static final String WATER_MARK_PNG = "water_mark.png";
+    public static final Integer IMAGE_SIZE = 400;
+    public static final Float IMAGE_OPACITY = 0.5f;
+
     public static String FILE_UPLOAD_DIR;
 
     public static final String JWT_KEY = "imooc-mall";
