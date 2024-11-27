@@ -16,6 +16,7 @@ import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +40,8 @@ public class ProductAdminController {
 
     @Autowired
     ProductService productService;
+    @Value("${file.upload.uri}")
+    String uri;
 
     @PostMapping("/admin/product/add")
     @ResponseBody
@@ -59,24 +62,19 @@ public class ProductAdminController {
         File destFile = new File(Constant.FILE_UPLOAD_DIR + newFileName);
 
         createFile(multipartFile, fileDirectory, destFile);
-        try {
-            return ApiRestResponse.success(
-                    getHost(new URI(httpServletRequest.getRequestURL() + ""))
-                            + "/images/" + newFileName);
-        } catch (URISyntaxException e) {
-            return ApiRestResponse.error(ImoocMallExceptionEnum.UPLOAD_FAILED);
-        }
+        String address = uri;
+        return ApiRestResponse.success("http://" + address + "/images/" + newFileName);
     }
 
-    private URI getHost(URI uri) {
-        URI effectiveUri;
-        try {
-            effectiveUri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
-        } catch (URISyntaxException e) {
-            effectiveUri = null;
-        }
-        return effectiveUri;
-    }
+//    private URI getHost(URI uri) {
+//        URI effectiveUri;
+//        try {
+//            effectiveUri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
+//        } catch (URISyntaxException e) {
+//            effectiveUri = null;
+//        }
+//        return effectiveUri;
+//    }
 
     @ApiOperation("后台更新商品")
     @PostMapping("/admin/product/update")
@@ -139,13 +137,8 @@ public class ProductAdminController {
         Thumbnails.of(destFile).size(Constant.IMAGE_SIZE, Constant.IMAGE_SIZE)
                 .watermark(Positions.BOTTOM_RIGHT, ImageIO.read(new File(Constant.FILE_UPLOAD_DIR + Constant.WATER_MARK_PNG)), Constant.IMAGE_OPACITY)
                 .toFile(new File(Constant.FILE_UPLOAD_DIR + newFileName));
-        try {
-            return ApiRestResponse.success(
-                    getHost(new URI(httpServletRequest.getRequestURL() + ""))
-                            + "/images/" + newFileName);
-        } catch (URISyntaxException e) {
-            return ApiRestResponse.error(ImoocMallExceptionEnum.UPLOAD_FAILED);
-        }
+        String address = uri;
+        return ApiRestResponse.success("http://" + address + "/images/" + newFileName);
     }
 
     private static void createFile(MultipartFile multipartFile, File fileDirectory, File destFile) {

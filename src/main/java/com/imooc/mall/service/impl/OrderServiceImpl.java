@@ -50,8 +50,8 @@ public class OrderServiceImpl implements OrderService {
     OrderMapper orderMapper;
     @Autowired
     OrderItemMapper orderItemMapper;
-    @Value("${file.upload.ip}")
-    String ip;
+    @Value("${file.upload.uri}")
+    String uri;
     @Autowired
     UserService userService;
 
@@ -218,15 +218,13 @@ public class OrderServiceImpl implements OrderService {
             order.setEndTime(new Date());
             orderMapper.updateByPrimaryKey(order);
         } else {
-            throw new ImoocMallException(ImoocMallExceptionEnum.WRONG_ORDER_STATUS);
+            throw new ImoocMallException(ImoocMallExceptionEnum.CANCEL_WRONG_ORDER_STATUS);
         }
     }
 
     @Override
     public String qrcode(String orderNo) {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-        String address = ip + ":" + request.getLocalPort();
+        String address = "http://" + uri ;
         String payUrl = "http://" + address + "/pay?orderNo=" + orderNo;
         QRCodeGenerator.generateQRCodeImage(payUrl, 350, 350, Constant.FILE_UPLOAD_DIR + orderNo + ".png");
         String pngAddress = "http://" + address + "/images/" + orderNo + ".png";
@@ -247,8 +245,8 @@ public class OrderServiceImpl implements OrderService {
     public PageInfo listForCustomer(Integer pageNum, Integer pageSize) {
         Integer userId = UserFilter.currentUser.getId();
         PageHelper.startPage(pageNum, pageSize);
-        List<Order> orderList=orderMapper.selectForCustomer(userId);
-        List<OrderVO> orderVOList=orderListToOrderVOList(orderList);
+        List<Order> orderList = orderMapper.selectForCustomer(userId);
+        List<OrderVO> orderVOList = orderListToOrderVOList(orderList);
         PageInfo pageInfo = new PageInfo<>(orderVOList);
         pageInfo.setList(orderVOList);
         return pageInfo;
@@ -275,8 +273,8 @@ public class OrderServiceImpl implements OrderService {
             order.setOrderStatus(Constant.OrderStatusEnum.PAID.getCode());
             order.setPayTime(new Date());
             orderMapper.updateByPrimaryKey(order);
-        }else{
-            throw new ImoocMallException(ImoocMallExceptionEnum.WRONG_ORDER_STATUS);
+        } else {
+            throw new ImoocMallException(ImoocMallExceptionEnum.PAY_WRONG_ORDER_STATUS);
         }
     }
 
@@ -291,8 +289,8 @@ public class OrderServiceImpl implements OrderService {
             order.setOrderStatus(Constant.OrderStatusEnum.DELIVERED.getCode());
             order.setDeliveryTime(new Date());
             orderMapper.updateByPrimaryKey(order);
-        }else{
-            throw new ImoocMallException(ImoocMallExceptionEnum.WRONG_ORDER_STATUS);
+        } else {
+            throw new ImoocMallException(ImoocMallExceptionEnum.DELIVER_WRONG_ORDER_STATUS);
         }
     }
 
@@ -304,7 +302,7 @@ public class OrderServiceImpl implements OrderService {
             throw new ImoocMallException(ImoocMallExceptionEnum.NO_ORDER);
         }
         //如果是普通用户，就要校验订单的所属
-        if (!userService.checkAdminRole(UserFilter.currentUser)&&!order.getUserId().equals(UserFilter.currentUser.getId())) {
+        if (!userService.checkAdminRole(UserFilter.currentUser) && !order.getUserId().equals(UserFilter.currentUser.getId())) {
             throw new ImoocMallException(ImoocMallExceptionEnum.NOT_YOUR_ORDER);
         }
         //发货后可以完结订单
@@ -312,8 +310,8 @@ public class OrderServiceImpl implements OrderService {
             order.setOrderStatus(Constant.OrderStatusEnum.FINISHED.getCode());
             order.setEndTime(new Date());
             orderMapper.updateByPrimaryKey(order);
-        }else{
-            throw new ImoocMallException(ImoocMallExceptionEnum.WRONG_ORDER_STATUS);
+        } else {
+            throw new ImoocMallException(ImoocMallExceptionEnum.FINISH_WRONG_ORDER_STATUS);
         }
     }
 }
