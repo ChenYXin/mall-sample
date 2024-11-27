@@ -1,22 +1,22 @@
 package com.imooc.mall.controller;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.imooc.mall.common.ApiRestResponse;
 import com.imooc.mall.common.Constant;
-import com.imooc.mall.config.ImoocMallWebMvcConfig;
 import com.imooc.mall.exception.ImoocMallException;
 import com.imooc.mall.exception.ImoocMallExceptionEnum;
 import com.imooc.mall.model.pojo.User;
 import com.imooc.mall.service.EmailService;
 import com.imooc.mall.service.UserService;
 import com.imooc.mall.util.EmailUtil;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 
 /**
  * 用户控制器
@@ -153,5 +153,30 @@ public class UserController {
         }
         emailService.sendSimpleMessage(emailAddress, Constant.EMAIL_SUBJECT, "欢迎注册，您的验证码是" + verificationCode);
         return ApiRestResponse.success();
+    }
+
+    @ApiOperation("登录返回JWT")
+    @GetMapping("/loginWithJWT")
+    public ApiRestResponse loginWithJWT(@RequestParam("userName") String userName,
+                                        @RequestParam("password") String password) throws ImoocMallException {
+        if (StringUtils.isEmpty(userName)) {
+            return ApiRestResponse.error(ImoocMallExceptionEnum.NEED_USER_NAME);
+        }
+        if (StringUtils.isEmpty(password)) {
+            return ApiRestResponse.error(ImoocMallExceptionEnum.NEED_USER_PASSWORD);
+        }
+        User user = userService.login(userName, password);
+        //保存用户信息时，不保存密码
+        user.setPassword(null);
+        Algorithm algorithm = Algorithm.HMAC256(Constant.JWT_KEY);
+        String token = JWT.create()
+                .withClaim(Constant.USER_NAME, user.getUsername())
+                .withClaim(Constant.USER_ID, user.getId())
+                .withClaim(Constant.USER_ROLE, user.getRole())
+                //过期时间
+                .withExpiresAt(new Date(System.currentTimeMillis() + Constant.EXPIRE_TIME))
+                .sign(algorithm);
+
+        return ApiRestResponse.success(token);
     }
 }

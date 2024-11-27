@@ -1,6 +1,5 @@
 package com.imooc.mall.config;
 
-import com.imooc.mall.filter.AdminFilter;
 import com.imooc.mall.filter.UserFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -14,11 +13,12 @@ public class UserFilterConfig {
     }
 
     @Bean(name = "userFilterConf")
-    public FilterRegistrationBean adminFilterConfig() {
+    public FilterRegistrationBean userFilterConf() {
         FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
         filterRegistrationBean.setFilter(userFilter());
         filterRegistrationBean.addUrlPatterns("/cart/*");
         filterRegistrationBean.addUrlPatterns("/order/*");
+        filterRegistrationBean.addUrlPatterns("/user/update");
         filterRegistrationBean.setName("userFilterConfig");
         return filterRegistrationBean;
     }
