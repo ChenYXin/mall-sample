@@ -10,6 +10,7 @@ import com.imooc.mall.model.pojo.Product;
 import com.imooc.mall.model.request.AddProductReq;
 import com.imooc.mall.model.request.UpdateProductReq;
 import com.imooc.mall.service.ProductService;
+import com.imooc.mall.service.UploadService;
 import io.swagger.annotations.ApiOperation;
 import net.coobird.thumbnailator.Thumbnailator;
 import net.coobird.thumbnailator.Thumbnails;
@@ -40,8 +41,9 @@ public class ProductAdminController {
 
     @Autowired
     ProductService productService;
-    @Value("${file.upload.uri}")
-    String uri;
+    @Autowired
+    UploadService uploadService;
+
 
     @PostMapping("/admin/product/add")
     @ResponseBody
@@ -52,29 +54,9 @@ public class ProductAdminController {
 
     @PostMapping("/admin/upload/file")
     public ApiRestResponse upload(HttpServletRequest httpServletRequest, @RequestParam("file") MultipartFile multipartFile) {
-        String fileName = multipartFile.getOriginalFilename();
-        String suffixName = fileName.substring(fileName.lastIndexOf("."));
-        //生成文件名称UUID
-        UUID uuid = UUID.randomUUID();
-        String newFileName = uuid.toString() + suffixName;
-        //创建文件
-        File fileDirectory = new File(Constant.FILE_UPLOAD_DIR);
-        File destFile = new File(Constant.FILE_UPLOAD_DIR + newFileName);
-
-        createFile(multipartFile, fileDirectory, destFile);
-        String address = uri;
-        return ApiRestResponse.success("http://" + address + "/images/" + newFileName);
+        String result = uploadService.uploadFile(multipartFile);
+        return ApiRestResponse.success(result);
     }
-
-//    private URI getHost(URI uri) {
-//        URI effectiveUri;
-//        try {
-//            effectiveUri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
-//        } catch (URISyntaxException e) {
-//            effectiveUri = null;
-//        }
-//        return effectiveUri;
-//    }
 
     @ApiOperation("后台更新商品")
     @PostMapping("/admin/product/update")
@@ -109,50 +91,24 @@ public class ProductAdminController {
     @ApiOperation("后台批量上传商品")
     @PostMapping("/admin/upload/product")
     public ApiRestResponse uploadProduct(@RequestParam("file") MultipartFile multipartFile) throws IOException {
-        String filename = multipartFile.getOriginalFilename();
-        String suffixName = filename.substring(filename.lastIndexOf("."));
-        //生成UUID
-        UUID uuid = UUID.randomUUID();
-        String newFileName = uuid.toString() + suffixName;
+        String newFileName = uploadService.getNewFileName(multipartFile);
         //创建文件
         File fileDirectory = new File(Constant.FILE_UPLOAD_DIR);
         File destFile = new File(Constant.FILE_UPLOAD_DIR + newFileName);
-        createFile(multipartFile, fileDirectory, destFile);
+        uploadService.createFile(multipartFile, fileDirectory, destFile);
         productService.addProductByExcel(destFile);
         return ApiRestResponse.success();
     }
 
+
+
     @PostMapping("/admin/upload/image")
     public ApiRestResponse uploadImage(HttpServletRequest httpServletRequest,
                                        @RequestParam("file") MultipartFile multipartFile) throws IOException {
-        String filename = multipartFile.getOriginalFilename();
-        String suffixName = filename.substring(filename.lastIndexOf("."));
-        //生成UUID
-        UUID uuid = UUID.randomUUID();
-        String newFileName = uuid.toString() + suffixName;
-        //创建文件
-        File fileDirectory = new File(Constant.FILE_UPLOAD_DIR);
-        File destFile = new File(Constant.FILE_UPLOAD_DIR + newFileName);
-        createFile(multipartFile, fileDirectory, destFile);
-        Thumbnails.of(destFile).size(Constant.IMAGE_SIZE, Constant.IMAGE_SIZE)
-                .watermark(Positions.BOTTOM_RIGHT, ImageIO.read(new File(Constant.FILE_UPLOAD_DIR + Constant.WATER_MARK_PNG)), Constant.IMAGE_OPACITY)
-                .toFile(new File(Constant.FILE_UPLOAD_DIR + newFileName));
-        String address = uri;
-        return ApiRestResponse.success("http://" + address + "/images/" + newFileName);
+        String result = uploadService.uploadFile(multipartFile);
+        return ApiRestResponse.success(result);
     }
 
-    private static void createFile(MultipartFile multipartFile, File fileDirectory, File destFile) {
-        if (!fileDirectory.exists()) {
-            if (!fileDirectory.mkdirs()) {
-                throw new ImoocMallException(ImoocMallExceptionEnum.MKDIR_FAILED);
-            }
-        }
-        try {
-            multipartFile.transferTo(destFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @ApiOperation("后台批量更新商品")
     @PostMapping("/admin/product/batchUpdate")
